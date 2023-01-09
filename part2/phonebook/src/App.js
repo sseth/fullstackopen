@@ -1,5 +1,5 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
+import pbService from './services/phonebook';
 import { AddPerson, Filter, Numbers } from './components';
 
 const App = () => {
@@ -11,7 +11,7 @@ const App = () => {
 
   const addName = (e) => {
     e.preventDefault();
-    
+
     const name = newName.trim();
     const number = newNumber.trim();
     if (!name || !number) {
@@ -20,20 +20,32 @@ const App = () => {
     }
 
     let duplicate = false;
+    let id;
     persons.forEach((person) => {
       if (name === person.name) {
         duplicate = true;
+        id = person.id;
         return;
       }
     });
 
     if (!duplicate) {
-      setPersons(persons.concat({ name, number }));
-      setNewName('');
-      setNewNumber('');
+      pbService
+        .create({ name, number })
+        .then((newEntry) => setPersons(persons.concat(newEntry)))
+        .catch((error) => console.error(error));
     } else {
-      alert(`${name} is already in phonebook`);
+      const msg = `${name} is already in phonebook, replace old number?`;
+      if (!window.confirm(msg)) return;
+      pbService
+        .update(id, newNumber)
+        .then(() => {
+          pbService.getAll().then((persons) => setPersons(persons));
+        })
+        .catch((error) => console.error(error));
     }
+    setNewName('');
+    setNewNumber('');
   };
 
   const handleChange = (e) => {
@@ -56,10 +68,10 @@ const App = () => {
   }, [search, persons]);
 
   useEffect(() => {
-    axios('http://localhost:3001/persons')
-    .then((response) => {
-      setPersons(response.data);
-    });
+    pbService
+      .getAll()
+      .then((allEntries) => setPersons(allEntries))
+      .catch((error) => console.error(error));
   }, []);
 
   return (
@@ -77,7 +89,7 @@ const App = () => {
       />
 
       <h4 style={{ marginBottom: 5 }}>Numbers</h4>
-      <Numbers persons={filtered} />
+      <Numbers persons={filtered} setPersons={setPersons} />
     </div>
   );
 };
