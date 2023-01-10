@@ -1,95 +1,67 @@
 import { useEffect, useState } from 'react';
 import pbService from './services/phonebook';
-import { AddPerson, Filter, Numbers } from './components';
+import { AddPerson, Filter, Numbers, MsgPopup } from './components';
 
 const App = () => {
+  // console.log('app');
   const [persons, setPersons] = useState([]);
-  const [filtered, setFiltered] = useState(persons);
-  const [newName, setNewName] = useState('');
-  const [newNumber, setNewNumber] = useState('');
-  const [search, setSearch] = useState('');
+  const [query, setQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [notif, setNotif] = useState(['', false]);
 
-  const addName = (e) => {
-    e.preventDefault();
-
-    const name = newName.trim();
-    const number = newNumber.trim();
-    if (!name || !number) {
-      alert('Name and number required');
-      return;
-    }
-
-    let duplicate = false;
-    let id;
-    persons.forEach((person) => {
-      if (name === person.name) {
-        duplicate = true;
-        id = person.id;
-        return;
-      }
-    });
-
-    if (!duplicate) {
-      pbService
-        .create({ name, number })
-        .then((newEntry) => setPersons(persons.concat(newEntry)))
-        .catch((error) => console.error(error));
-    } else {
-      const msg = `${name} is already in phonebook, replace old number?`;
-      if (!window.confirm(msg)) return;
-      pbService
-        .update(id, newNumber)
-        .then(() => {
-          pbService.getAll().then((persons) => setPersons(persons));
-        })
-        .catch((error) => console.error(error));
-    }
-    setNewName('');
-    setNewNumber('');
-  };
-
-  const handleChange = (e) => {
-    if (e.target.name === 'name') setNewName(e.target.value);
-    else setNewNumber(e.target.value);
-  };
-
-  useEffect(() => {
-    if (search === '') {
-      setFiltered(persons);
-    } else {
-      setFiltered(
-        persons.filter((person) =>
-          person.name
-            .split(' ')
-            .some((str) => str.toLowerCase().startsWith(search.toLowerCase()))
-        )
-      );
-    }
-  }, [search, persons]);
-
-  useEffect(() => {
+  const getPersons = () => {
     pbService
       .getAll()
       .then((allEntries) => setPersons(allEntries))
-      .catch((error) => console.error(error));
-  }, []);
+      .catch((error) => {
+        console.error(error);
+        setNotif(['Could not fetch phonebook entries', true])
+      });
+  };
+
+  const search = () => {
+    if (query === '') {
+      setSearchResults(persons);
+    } else {
+      setSearchResults(
+        persons.filter((person) =>
+          person.name
+            .split(' ')
+            .some((str) => str.toLowerCase().startsWith(query.toLowerCase()))
+        )
+      );
+    }
+  };
+
+  const clearNotif = () => {
+    if (notif[0] === '') return;
+    setTimeout(() => setNotif(['', false]), 5000);
+  };
+
+  useEffect(getPersons, []);
+  useEffect(clearNotif, [notif]);
+  useEffect(search, [query, persons]);
 
   return (
-    <div>
-      <h2>Phonebook</h2>
+    <div style={{ width: 400 }}>
+      <h2 style={{ textAlign: 'center' }}>Phonebook</h2>
 
-      <Filter search={search} setSearch={setSearch} />
+      <MsgPopup notif={notif} />
+      <Filter query={query} setQuery={setQuery} />
 
-      <h4 style={{ marginBottom: 5 }}>Add new</h4>
+      <h3 style={{ marginBottom: 4 }}>Add new</h3>
       <AddPerson
-        name={newName}
-        number={newNumber}
-        onSubmit={addName}
-        onChange={handleChange}
+        persons={persons}
+        setNotif={setNotif}
+        setPersons={setPersons}
       />
 
-      <h4 style={{ marginBottom: 5 }}>Numbers</h4>
-      <Numbers persons={filtered} setPersons={setPersons} />
+      <h3 style={{ marginBottom: 8 }}>Numbers</h3>
+      <Numbers
+        setNotif={setNotif}
+        persons={searchResults}
+        setPersons={setPersons}
+      />
     </div>
   );
 };

@@ -1,9 +1,24 @@
-const Filter = ({ search, setSearch }) => (
-  <div>
-    <span>filter by name </span>
-    <input value={search} onChange={(e) => setSearch(e.target.value)} />
-    <button onClick={() => setSearch('')}>clear</button>
-  </div>
-);
+const Filter = ({ query, setQuery }) => {
+  // console.log('filter');
+  return (
+    <div
+      style={{
+        paddingLeft: 3,
+        marginBottom: 25,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}
+    >
+      <span>filter by name</span>
+      <input
+        value={query}
+        style={{ width: '60%' }}
+        onChange={(e) => setQuery(e.target.value)}
+      />
+      <button onClick={() => setQuery('')}>clear</button>
+    </div>
+  );
+};
 
 export default Filter;

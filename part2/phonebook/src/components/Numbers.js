@@ -1,23 +1,39 @@
-import phonebookService from '../services/phonebook';
+import pbService from '../services/phonebook';
 
-const Numbers = ({ persons, setPersons }) => {
+const Numbers = ({ persons, setPersons, setNotif }) => {
+  // console.log('numbers');
   const deletePerson = (id, name) => {
     if (!window.confirm(`Delete ${name}?`)) return;
-    phonebookService
+    pbService
       .remove(id)
-      .then(() => setPersons(persons.filter((p) => p.id !== id)))
-      .catch((error) => console.error(error));
+      .then(() => {
+        setPersons(persons.filter((p) => p.id !== id));
+        setNotif([`Deleted ${name}`], false);
+      })
+      .catch((error) => {
+        console.error(error);
+        const msg =
+          error.response && error.response.status === 404
+            ? `${name} already deleted from server`
+            : `Failed to delete ${name}`;
+        setNotif([msg, true]);
+      });
   };
 
   return (
-    <>
-      {persons.map((p) => (
-        <div key={p.name}>
-          {p.name}: {p.number}{' '}
-          <button onClick={() => deletePerson(p.id, p.name)}>delete</button>
-        </div>
-      ))}
-    </>
+    <table style={{ width: '100%' }}>
+      <tbody>
+        {persons.map((p) => (
+          <tr key={p.name}>
+            <td>{p.name}</td>
+            <td>{p.number}</td>
+            <td>
+              <button onClick={() => deletePerson(p.id, p.name)}>delete</button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 };
 
