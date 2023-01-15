@@ -1,0 +1,39 @@
+{
+  "name": "phonebook",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "axios": "^1.2.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "BUILD_PATH='../../../fso-part3/build' react-scripts build",
+    "eject": "react-scripts eject",
+    "server": "json-server -p3001 --watch db.json"
+  },
+  "proxy": "http://localhost:3001",
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "json-server": "^0.17.1"
+  }
+}
