@@ -23,7 +23,7 @@ const Numbers = ({ persons, filtered, setPersons, setNotif }) => {
     <table style={{ width: '100%' }}>
       <tbody>
         {filtered.map((p) => (
-          <tr key={p.name}>
+          <tr key={p.id}>
             <td>{p.name}</td>
             <td>{p.number}</td>
             <td>

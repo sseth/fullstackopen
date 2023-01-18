@@ -40,7 +40,7 @@ const AddPerson = ({ persons, setPersons, setNotif }) => {
       const msg = `${name} is already in phonebook, replace old number?`;
       if (!window.confirm(msg)) return;
       pbService
-        .update(id, newNumber)
+        .update(id, name, newNumber)
         .then(() =>
           pbService.getAll().then((persons) => {
             setPersons(persons);

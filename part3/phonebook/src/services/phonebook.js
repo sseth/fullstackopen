@@ -14,8 +14,8 @@ const remove = (id) => {
   return axios.delete(`${baseUrl}/${id}`);
 };
 
-const update = (id, number) => {
-  return axios.patch(`${baseUrl}/${id}`, { number });
+const update = (id, name, number) => {
+  return axios.put(`${baseUrl}/${id}`, { name, number });
 };
 
 const phonebookService = { create, getAll, remove, update };
