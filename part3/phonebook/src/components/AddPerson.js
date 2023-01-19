@@ -5,6 +5,24 @@ const AddPerson = ({ persons, setPersons, setNotif }) => {
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
 
+  const getErrorMessage = (e, name, update = false) => {
+    if (e.response) {
+      if (e.response.status === 404) {
+        return `${name} already deleted from server`;
+      }
+
+      if (e.response.data && e.response.data.error.type === 'validation') {
+        const msg = e.response.data.error.msg.split(', ')[0];
+        if (msg.startsWith('name'))
+          return msg.slice('name: '.length);
+        else
+          return msg.slice('number: '.length);
+      }
+    }
+
+    return `Failed to ${update ? 'update' : 'add'} ${name}`;
+  };
+
   const addName = (e) => {
     e.preventDefault();
 
@@ -18,7 +36,7 @@ const AddPerson = ({ persons, setPersons, setNotif }) => {
     let duplicate = false;
     let id;
     persons.forEach((person) => {
-      if (name.toLowerCase() === person.name.toLowerCase()) {
+      if (name === person.name) {
         duplicate = true;
         id = person.id;
         return;
@@ -34,7 +52,7 @@ const AddPerson = ({ persons, setPersons, setNotif }) => {
         })
         .catch((error) => {
           console.error(error);
-          setNotif([`Failed to add ${name}`, true]);
+          setNotif([getErrorMessage(error, name), true]);
         });
     } else {
       const msg = `${name} is already in phonebook, replace old number?`;
@@ -49,11 +67,7 @@ const AddPerson = ({ persons, setPersons, setNotif }) => {
         )
         .catch((error) => {
           console.error(error);
-          const msg =
-            error.response && error.response.status === 404
-              ? `${name} already deleted from server`
-              : `Failed to update ${name}`;
-          setNotif([msg, true]);
+          setNotif([getErrorMessage(error, name, true), true]);
         });
     }
     setNewName('');

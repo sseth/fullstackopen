@@ -34,7 +34,8 @@ const App = () => {
 
   const clearNotif = () => {
     if (notif[0] === '') return;
-    setTimeout(() => setNotif(['', false]), 5000);
+    const timer = setTimeout(() => setNotif(['', false]), 5000);
+    return () => clearTimeout(timer);
   };
 
   useEffect(getPersons, []);
